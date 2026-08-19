@@ -83,9 +83,8 @@ def update(frame):
 
     # current particle
     particle.set_data([p1], [p2])
-
     return trajectory, particle
-ani = ani.FuncAnimation(
+ani = anim.FuncAnimation(
     fig,
     update,
     frames=1000,
@@ -94,4 +93,3 @@ ani = ani.FuncAnimation(
 )
 
 plt.show()
-
