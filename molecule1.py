@@ -37,26 +37,29 @@ class particle():
         self.radius = rad
         self.color = c
 
-    def move(self, dt):
-        self.x += self.vx * dt + (g*dt**2)/2
-        self.y += self.vy * dt + (g*dt**2)/2
-        self.vy -= g*dt 
+    def move(self, dt, lx, ly, e):
+        self.x += self.vx * dt
+        self.y += self.vy * dt - 0.5 * g * dt**2
+        self.vy -= g * dt
 
-    def wall_collision(self, lx, ly, e):
         if self.x + self.radius >= lx:
-            self.x = lx - self.radius
+            penetration = self.x + self.radius - lx
+            self.x = lx - self.radius - penetration
             self.vx = -e * self.vx
 
         elif self.x - self.radius <= 0:
-            self.x = self.radius
+            penetration = -(self.x - self.radius)
+            self.x = self.radius + penetration
             self.vx = -e * self.vx
 
         if self.y + self.radius >= ly:
-            self.y = ly - self.radius
+            penetration = self.y + self.radius - ly
+            self.y = ly - self.radius - penetration
             self.vy = -e * self.vy
 
         elif self.y - self.radius <= 0:
-            self.y = self.radius
+            penetration = -(self.y - self.radius)
+            self.y = self.radius + penetration
             self.vy = -e * self.vy
     # def coulomb(other):
 
@@ -93,7 +96,7 @@ vels=[]
 for _ in p:
     v=np.sqrt(_.vx**2+_.vy**2)
     vels.append(v)
-dt=(np.sqrt(dx**2+dy**2))/20.0*(max(vels))
+dt=(np.sqrt(dx**2+dy**2))/(20.0*(max(vels)))
 fig, ax = plt.subplots()
 ax.set_xlim(0, lx)
 ax.set_ylim(0, ly)
@@ -108,15 +111,13 @@ for particle in p:
 
 def update(frame):
     for particle, point in zip(p, motion):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-        particle.move(dt)
-        particle.wall_collision(lx, ly,constant_restitution)
-        
+        particle.move(dt,lx,ly,1)        
         # collision(p, particle)
         point.set_data([particle.x], [particle.y])
     
-
+    e=0
     for i in p:
-        e=0.5*(i.vx**2+i.vy**2)+g*i.y
+        e+=0.5*(i.vx**2+i.vy**2)+g*i.y
     energy.append(e)
     time.append(frame*dt)
     return motion
