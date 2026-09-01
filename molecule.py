@@ -1,13 +1,7 @@
-import matplotlib
-matplotlib.use("TkAgg")
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
-
-def line(x):
-    y=np.linspace(0,10,100)
-    return y
+import random as r
 
 def plot_walls(ax,width, height):
     # Bottom wall
@@ -33,63 +27,109 @@ def plot_walls(ax,width, height):
 
     plt.axis("equal")
 
+class particle():
+    def __init__(self,x,y,vx,vy,rad,c,energy):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.energy=energy
+        self.radius = rad
+        self.color = c
+
+    def move(self, dt):
+        self.x += self.vx * dt + (g*dt**2)/2
+        self.y += self.vy * dt + (g*dt**2)/2
+        self.vy -= g*dt 
+
+    def wall_collision(self, lx, ly, e):
+        if self.x + self.radius >= lx:
+            self.x = lx - self.radius
+            self.vx = -e * self.vx
+
+        elif self.x - self.radius <= 0:
+            self.x = self.radius
+            self.vx = -e * self.vx
+
+        if self.y + self.radius >= ly:
+            self.y = ly - self.radius
+            self.vy = -e * self.vy
+
+        elif self.y - self.radius <= 0:
+            self.y = self.radius
+            self.vy = -e * self.vy
+    # def coulomb(other):
+
+    def __repr__(self):
+        return f"Particle(x={self.x}, y={self.y}, vx={self.vx}, vy={self.vy})"
+
+def collision(p,a:particle):
+    for _ in p:
+        if a != _:
+            dist = np.sqrt((a.x - _.x) ** 2+(a.y - _.y) ** 2)
+            if dist <= a.radius:
+                a.vx = -a.vx
+                a.vy = -a.vy
+
 n=1
-T=1000
-lx,ly=10,10
+T=10
+constant_restitution = 1
+lx,ly=30,30
 dx=lx/10
 dy=ly/10
-vx,vy=2,1
-dt=(np.sqrt(dx**2+dy**2))/20*(np.sqrt(vx**2+vy**2))
-p1,p2=5,5
+g=1
+color = plt.cm.hsv(np.linspace(0, 1, n))
+p=[]
+for _ in range(n):
+    x,y=r.randint(1,lx-1),r.randint(1,lx-1)
+    vx,vy=r.gauss(),r.gauss()
+    e=1
+    rad=0.2
+    c=color[_]
+    i=particle(x,y,vx,vy,rad,c,e)
+    p.append(i)
 
+vels=[]
+for _ in p:
+    v=np.sqrt(_.vx**2+_.vy**2)
+    vels.append(v)
+dt=(np.sqrt(dx**2+dy**2))/20.0*(max(vels))
 fig, ax = plt.subplots()
-
 ax.set_xlim(0, lx)
 ax.set_ylim(0, ly)
 ax.set_aspect("equal")
-
 plot_walls(ax, lx, ly)
-trajectory, = ax.plot([], [], "b-", linewidth=1)
-particle, = ax.plot([p1], [p2], "ro")
-
-x = []
-y = []
+motion = []
+energy = []
+time = []
+for particle in p:
+    point, = ax.plot([particle.x], [particle.y], "o",color=particle.color)
+    motion.append(point)
 
 def update(frame):
-    global p1, p2, vx, vy
+    for particle, point in zip(p, motion):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+        particle.move(dt)
+        particle.wall_collision(lx, ly,constant_restitution)
+        
+        # collision(p, particle)
+        point.set_data([particle.x], [particle.y])
+    
 
-    p1 += vx * dt
-    p2 += vy * dt
+    for i in p:
+        e=0.5*(i.vx**2+i.vy**2)+g*i.y
+    energy.append(e)
+    time.append(frame*dt)
+    return motion
 
-    if p1 >= lx:
-        p1 = lx
-        vx = -vx
-    elif p1 <= 0:
-        p1 = 0
-        vx = -vx
 
-    if p2 >= ly:
-        p2 = ly
-        vy = -vy
-    elif p2 <= 0:
-        p2 = 0
-        vy = -vy
 
-    x.append(p1)
-    y.append(p2)
-
-    # trajectory
-    trajectory.set_data(x, y)
-
-    # current particle
-    particle.set_data([p1], [p2])
-    return trajectory, particle
 ani = anim.FuncAnimation(
     fig,
     update,
     frames=1000,
     interval=20,
-    blit=True
+    blit=False
 )
-
+plt.show()
+plt.plot(time,energy)
 plt.show()
