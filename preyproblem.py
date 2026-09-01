@@ -14,6 +14,22 @@ ft=[]
 time=[]
 t=0
 plt.figure(figsize=(8, 6))
+R, F = np.meshgrid(
+    np.linspace(0, 25, 10),
+    np.linspace(0, 25, 10)
+)
+
+R_dot = a*R - b*R*F
+F_dot = -c*F + d*F*R
+
+plt.quiver(
+    R, F,
+    R_dot, F_dot,
+    angles='xy',
+    scale_units='xy',
+    scale=100,
+    width=0.002
+)
 for rabbits in r0:
     for fox in f0:
         r=rabbits
