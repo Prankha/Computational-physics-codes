@@ -18,6 +18,21 @@ st=[]
 time=[]
 t=0
 plt.figure(figsize=(8, 6))
+R, S = np.meshgrid(
+    np.linspace(0, 3, 20),
+    np.linspace(0, 3, 20)
+)
+R_dot = a*S - b*R*S - c*R**2
+S_dot = d*R - e*S*R - f*S**2
+
+plt.quiver(
+    R, S,
+    R_dot, S_dot,
+    angles='xy',
+    scale_units='xy',
+    scale=30,
+    width=0.002
+)
 for rabbits in r0:
     for sheep in s0:
         r=rabbits
