@@ -43,23 +43,15 @@ class particle():
         self.vy -= g * dt
 
         if self.x + self.radius >= lx:
-            penetration = self.x + self.radius - lx
-            self.x = lx - self.radius - penetration
             self.vx = -e * self.vx
 
         elif self.x - self.radius <= 0:
-            penetration = -(self.x - self.radius)
-            self.x = self.radius + penetration
             self.vx = -e * self.vx
 
         if self.y + self.radius >= ly:
-            penetration = self.y + self.radius - ly
-            self.y = ly - self.radius - penetration
             self.vy = -e * self.vy
 
         elif self.y - self.radius <= 0:
-            penetration = -(self.y - self.radius)
-            self.y = self.radius + penetration
             self.vy = -e * self.vy
     # def coulomb(other):
 
@@ -74,9 +66,9 @@ def collision(p,a:particle):
                 a.vx = -a.vx
                 a.vy = -a.vy
 
-n=1
+n=5
 T=10
-constant_restitution = 1
+constant_restitution = 0.3
 lx,ly=30,30
 dx=lx/10
 dy=ly/10
@@ -86,7 +78,7 @@ p=[]
 for _ in range(n):
     x,y=r.randint(1,lx-1),r.randint(1,lx-1)
     vx,vy=r.gauss(),r.gauss()
-    e=1
+    e=constant_restitution
     rad=0.2
     c=color[_]
     i=particle(x,y,vx,vy,rad,c,e)
@@ -112,7 +104,7 @@ for particle in p:
 def update(frame):
     for particle, point in zip(p, motion):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
         particle.move(dt,lx,ly,1)        
-        # collision(p, particle)
+        collision(p, particle)
         point.set_data([particle.x], [particle.y])
     
     e=0
